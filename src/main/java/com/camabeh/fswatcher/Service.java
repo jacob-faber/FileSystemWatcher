@@ -1,4 +1,4 @@
-package com.camabeh;
+package com.camabeh.fswatcher;
 
 import java.io.IOException;
 

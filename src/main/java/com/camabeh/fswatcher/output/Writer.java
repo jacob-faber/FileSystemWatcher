@@ -1,4 +1,6 @@
-package com.camabeh;
+package com.camabeh.fswatcher.output;
+
+import com.camabeh.fswatcher.Event;
 
 import java.io.BufferedOutputStream;
 import java.io.PrintStream;
@@ -22,20 +24,20 @@ public abstract class Writer {
         out = new PrintStream(new BufferedOutputStream(System.out));
     }
 
-    abstract void write(Event event);
+    public abstract void write(Event event);
 
     public static Format parse(String formatType) {
         switch (formatType) {
-            case "pretty":
-                return Format.PRETTY;
             case "csv":
                 return Format.CSV;
             case "json":
                 return Format.JSON;
             case "xml":
                 return Format.XML;
+            // Pretty printer is default
+            case "pretty":
             default:
-                throw new IllegalArgumentException("Invalid format, possible values: pretty|csv|json|xml");
+                return Format.PRETTY;
         }
     }
 }

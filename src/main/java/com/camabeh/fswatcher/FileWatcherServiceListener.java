@@ -1,4 +1,4 @@
-package com.camabeh;
+package com.camabeh.fswatcher;
 
 public abstract class FileWatcherServiceListener {
     public void onCreate(Event e) {

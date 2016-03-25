@@ -1,4 +1,4 @@
-package com.camabeh;
+package com.camabeh.fswatcher;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -15,31 +15,30 @@ public class FileWatcherService implements Service {
     private static final Logger log = Logger.getLogger(Service.class.getName());
 
     private Path[] paths = new Path[]{Paths.get(".")};
-    private Writer.Format format = Writer.Format.PRETTY;
     private WatchEvent.Kind<?>[] events = new WatchEvent.Kind[]{ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE};
     private FileWatcherServiceListener listener = new FileWatcherServiceListener() {
     };
 
     private boolean recursive = false;
-
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
 
-    public FileWatcherService(Writer.Format format, WatchEvent.Kind<?>[] events, boolean recursive, String... paths) throws IOException {
-        this.format = format;
+    public FileWatcherService(WatchEvent.Kind<?>[] events, boolean recursive, String... paths) throws IOException {
         this.events = events;
         this.recursive = recursive;
 
         if (paths != null) {
+            // Add all paths to watchlist
             this.paths = new Path[paths.length];
+            for (int i = 0; i < paths.length; ++i) {
+                this.paths[i] = Paths.get(paths[i]);
+            }
         } // Else using default value
 
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<>();
 
-        log.log(Level.FINE, "onCreate constructor  {0}", "1");
-        log.log(Level.FINER, "onCreate constructor  {0}", "2");
-        log.log(Level.FINEST, "onCreate constructor");
+        log.log(Level.FINE, "FileWatcherService constructor  {0}", "1");
     }
 
     /**
@@ -107,16 +106,37 @@ public class FileWatcherService implements Service {
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind kind = event.kind();
 
+                @SuppressWarnings("unchecked")
+                WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                Path fileName = ev.context();
+                Path fullFileName = dir.resolve(fileName);
+                boolean isDirectory = Files.isDirectory(fullFileName);
+
+                log.log(Level.FINE, ev.kind().name() + " " + fullFileName);
+
                 if (kind == ENTRY_CREATE) {
-                    this.listener.onCreate(new Event());
-                }
-                if (kind == ENTRY_DELETE) {
-                    this.listener.onDelete(new Event());
-                }
-                if (kind == ENTRY_MODIFY) {
-                    this.listener.onModify(new Event());
+                    this.listener.onCreate(new Event("create", fullFileName, isDirectory));
+                    // Created directory, append it to watch list
+                    if (recursive && isDirectory) {
+                        registerAll(fullFileName);
+                    }
+                } else if (kind == ENTRY_DELETE) {
+                    this.listener.onDelete(new Event("delete", fullFileName, isDirectory));
+                } else if (kind == ENTRY_MODIFY) {
+                    this.listener.onModify(new Event("modify", fullFileName, isDirectory));
                 }
             }
+
+            // Check for validity key, the folder could be deleted...
+            boolean valid = key.reset();
+            if (!valid) {
+                keys.remove(key);
+                // No keys events to watch for
+                if (keys.isEmpty()) {
+                    break;
+                }
+            }
+
         }
     }
 

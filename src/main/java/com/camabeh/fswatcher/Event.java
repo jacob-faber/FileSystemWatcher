@@ -1,7 +1,8 @@
-package com.camabeh;
+package com.camabeh.fswatcher;
 
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +10,19 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 
 public class Event {
+
     private static final String delim = "/";
 
-    @SuppressWarnings("unchecked")
-    private static <T> WatchEvent<T> cast(WatchEvent<?> event) {
-        return (WatchEvent<T>) event;
+    private final Timestamp timestamp;
+    private final String eventType;
+    private final Path fileName;
+    private final boolean isDir;
+
+    public Event(String eventType, Path fileName, boolean isDir) {
+        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.eventType = eventType;
+        this.fileName = fileName;
+        this.isDir = isDir;
     }
 
     public static WatchEvent.Kind<Path>[] parse(String eventsStr) {
@@ -43,4 +52,29 @@ public class Event {
         return events.toArray(new WatchEvent.Kind[events.size()]);
     }
 
+    public String getEventType() {
+        return eventType;
+    }
+
+    public Path getFileName() {
+        return fileName;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public boolean isDir() {
+        return isDir;
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "timestamp=" + timestamp +
+                ", eventType='" + eventType + '\'' +
+                ", fileName=" + fileName +
+                ", isDir=" + isDir +
+                '}';
+    }
 }
