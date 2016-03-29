@@ -7,4 +7,9 @@ public class JsonWriter extends Writer {
     public void write(Event event) {
 
     }
+
+    @Override
+    public void close() {
+
+    }
 }

@@ -26,6 +26,8 @@ public abstract class Writer {
 
     public abstract void write(Event event);
 
+    public abstract void close();
+
     public static Format parse(String formatType) {
         switch (formatType) {
             case "csv":
@@ -38,6 +40,20 @@ public abstract class Writer {
             case "pretty":
             default:
                 return Format.PRETTY;
+        }
+    }
+
+    public static void clearConsole() {
+        try {
+            final String os = System.getProperty("os.name");
+
+            if (os.contains("Windows")) {
+                Runtime.getRuntime().exec("cls");
+            } else {
+                Runtime.getRuntime().exec("clear");
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -7,4 +7,9 @@ public class CsvWriter extends Writer {
     public void write(Event event) {
 
     }
+
+    @Override
+    public void close() {
+
+    }
 }

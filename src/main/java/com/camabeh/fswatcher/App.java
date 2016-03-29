@@ -58,19 +58,16 @@ public class App {
         watcher.setListener(new FileWatcherServiceListener() {
             @Override
             public void onCreate(Event e) {
-                System.out.println("onCreate " + e);
                 writer.write(e);
             }
 
             @Override
             public void onDelete(Event e) {
-                System.out.println("onDelete " + e);
                 writer.write(e);
             }
 
             @Override
             public void onModify(Event e) {
-                System.out.println("onModify " + e);
                 writer.write(e);
             }
         });
