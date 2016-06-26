@@ -2,7 +2,7 @@
 
 TODO:
 
-[ ] Tests
-[ ] Xml, Json, Csv output format
-[ ] Fat Jar
-[x] Pretty format
+- [ ] Tests
+- [ ] Xml, Json, Csv output format
+- [ ] Fat Jar
+- [x] Pretty format
